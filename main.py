@@ -184,7 +184,7 @@ def init(amount, degree, positive, negative):
         plt.show()
     best_genotype = [population[0][0], population[0][1], 0]
     pop_fit = []
-    for generation in range(1, 5):
+    for generation in range(1, 50):
         print(generation)
         count = amount
         new_population = []
@@ -203,7 +203,7 @@ def init(amount, degree, positive, negative):
             if rand == 2:
                 new_genotype = mutation(degree, g1)
                 new_population.append(new_genotype)
-            count = count - 1
+                count = count - 1
 
         if 0:
             plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
@@ -216,7 +216,7 @@ def init(amount, degree, positive, negative):
         population = copy.deepcopy(new_population)
         population = sorted(population, key=lambda x: x[1], reverse=True)
 
-        #print(population)
+        #print(new_population)
         if best_genotype[1] < population[0][1]:
             best_genotype = [population[0][0], population[0][1], generation]
     if 1:

@@ -27,219 +27,83 @@ end
 
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 import copy
 
-
-def generate_points_random(amount):
-    amount = math.floor(amount / 2)
-    positive = np.random.random((2, amount)) * 2 - 1
-    negative = np.random.random((2, amount)) * 2 - 1
-    return positive, negative
-
-
-def generate_points_fx(amount):
-    arr = np.random.random((amount, 2)) * 2 - 1
-    xp, yp, xn, yn = [], [], [], []
-    for i in range(amount):
-        if arr[i][0] - arr[i][1] < 0:
-            xp.append(arr[i][0])
-            yp.append(arr[i][1])
-        else:
-            xn.append(arr[i][0])
-            yn.append(arr[i][1])
-    positive = [xp, yp]
-    negative = [xn, yn]
-
-    return np.asarray(positive), np.asarray(negative)
+import points
+import selection as s
+import crossover as c
+import mutation as m
+import fitness as f
 
 
-def generate_points_radius(amount):
-    amount = math.floor(amount / 2)
-    p1, n1 = np.random.rand(2), np.random.rand(2) * 2 - 1
-    xp, yp, xn, yn = [], [], [], []
-
-
-    while amount > 0:
-        alpha = 2 * math.pi * np.random.rand(1)
-        r = np.random.rand(1)
-        x = r * math.cos(alpha) + p1[0]
-        y = r * math.sin(alpha) + p1[1]
-        xp.append(x)
-        yp.append(y)
-
-        alpha = 2 * math.pi * np.random.rand(1)
-        r = np.random.rand(1)
-        x = r * math.cos(alpha) + n1[0]
-        y = r * math.sin(alpha) + n1[1]
-        xn.append(x)
-        yn.append(y)
-
-        amount = amount - 1
-
-    positive = [xp, yp]
-    negative = [xn, yn]
-
-    return np.asarray(positive), np.asarray(negative)
-
-
-def generate_genotype(degree):
-    genotype = np.random.random(degree+1) * 4 - 2
-    return genotype
-
-
-def calculate_fitness(genotype, positive, negative):
-    total = positive.shape[1] + negative.shape[1]
-    fitness = 0
-    for i in range(positive.shape[1]):
-        if positive[1][i] > np.polyval(genotype, positive[0][i]):
-            fitness = fitness + 1
-
-    for i in range(negative.shape[1]):
-        if negative[1][i] < np.polyval(genotype, negative[0][i]):
-            fitness = fitness + 1
-
-    return fitness/total
-
-
-def select2nd(population, prob, g1):
-    c = 0
-    for genotype in population:
-        g2 = genotype
-        c = c + genotype[1]
-        if c > prob:
-            if g1[1] == g2[1]:
-                continue
-            break
-
-    return g2
-
-
-def selection(population):
-    c = 0
-    for genotype in population:
-        c = c + genotype[1]
-    prob = np.random.rand(1) * c
-    c = 0
-    for genotype in population:
-        g1 = genotype
-        c = c + genotype[1]
-        if c > prob:
-            break
-
-    prob = np.random.rand(1) * c
-
-    g2 = select2nd(population, prob, g1)
-
-    return g1, g2
-
-
-def crossover(degree, g1, g2):
-    new_genotype = []
-    j = 0
-    for i in np.random.randint(2, size=degree+1):
-        if i:
-            new_genotype.append(g1[0][j])
-        else:
-            new_genotype.append(g2[0][j])
-        j = j + 1
-
-    # print(g1, g2)
-    ng = [np.asarray(new_genotype), calculate_fitness(new_genotype, positive, negative)]
-    return ng
-
-
-def mutation(degree, genotype):
-    rand = np.random.randint(degree+1)
-    coefficient = np.random.rand(1) * 4 - 2
-    # print(coefficient)
-    g1 = copy.deepcopy(genotype)
-    g1[0][rand] = coefficient
-    g1[1] = calculate_fitness(g1[0], positive, negative)
-    return g1
-
-
-def avg_pop_fitness(population, amount):
-    c = 0
-    for genotype in population:
-        c = c + genotype[1]
-    return c/amount
-
-
-
-def init(amount, degree, positive, negative):
+def gen0(amount, degree, positive, negative):
+    """ Generates random polynomial and calculates it's fitness """
     population = []
-
     for i in range(amount):
-        genotype = generate_genotype(degree)
-        fitness = calculate_fitness(genotype, positive, negative)
+        genotype = np.random.random(degree+1) * 4 - 2
+        fitness = f.calculate_fitness(genotype, positive, negative)
         arr = [genotype, fitness]
         population.append(arr)
 
-    population = sorted(population, key=lambda x: x[1], reverse=True)
-    new_population = []
+    return sorted(population, key=lambda x: x[1], reverse=True)
 
-    if 0:
-        plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-                 np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
-        plt.show()
+
+def results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit):
+    plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
+             np.arange(-1, 1, 0.01), np.polyval(best_genotype[0], np.arange(-1, 1, 0.01)))
+    plt.show()
+
+    plt.plot(avg_pop_fit)
+    plt.show()
+
+    plt.plot(best_genotype_in_pop_fit)
+    plt.show()
+
+    print(best_genotype)
+
+
+def init(no_of_gt_in_pop, degree, positive, negative, no_of_generations):
+    """ Generating population 0 """
+    population = gen0(no_of_gt_in_pop, degree, positive, negative)
+    """ Best genotype, average fitness of whole population and best genotype in population initialized """
     best_genotype = [population[0][0], population[0][1], 0]
-    avg_pop_fit = [avg_pop_fitness(population, amount)]
+    avg_pop_fit = [f.avg_pop_fitness(population, no_of_gt_in_pop)]
     best_genotype_in_pop_fit = [population[0][1]]
-    for generation in range(1, 100):
-        print(generation)
-        count = amount
+
+    """ Generations """
+    for generation in range(1, no_of_generations+1):
+        """ Initialize new population """
         new_population = []
-        #print(population)
-        while count > 0:
-            g1, g2 = selection(population)
+        """ Creating new population """
+        while len(new_population) < no_of_gt_in_pop:
+            """ SELECTION """
+            g1, g2 = s.selection(population)
 
             rand = np.random.randint(3)
-            #print(rand)
             if rand == 1:
-                new_genotype = crossover(degree, g1, g2)
-                new_population.append(new_genotype)
-                count = count - 1
+                """ CROSSOVER """
+                new_population.append(c.crossover(degree, g1, g2, positive, negative))
 
             if rand == 2:
-                new_genotype = mutation(degree, g1)
-                new_population.append(new_genotype)
-                count = count - 1
-
-        if 0:
-            plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-                     np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
-            plt.show()
-
-        #print(population)
-        #print(new_population)
-
+                """ MUTATION """
+                new_population.append(m.mutation(degree, g1, positive, negative))
+        """ Preparing for next generation, saving avg fitness and best genotype in generation """
         population = copy.deepcopy(new_population)
         population = sorted(population, key=lambda x: x[1], reverse=True)
-        avg_pop_fit.append(avg_pop_fitness(population, amount))
+        avg_pop_fit.append(f.avg_pop_fitness(population, no_of_gt_in_pop))
         best_genotype_in_pop_fit.append(population[0][1])
-        #print(new_population)
+        """ Checking if current generation has better genotype """
         if best_genotype[1] < population[0][1]:
             best_genotype = [population[0][0], population[0][1], generation]
-    if 1:
-        plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-                 np.arange(-1, 1, 0.01), np.polyval(best_genotype[0], np.arange(-1, 1, 0.01)))
-        plt.show()
 
-        plt.plot(avg_pop_fit)
-        plt.show()
-
-        plt.plot(best_genotype_in_pop_fit)
-        plt.show()
-
-        print(avg_pop_fit)
-        print(best_genotype)
-        print(best_genotype_in_pop_fit)
+    """ Showing results """
+    results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit)
 
 
-#positive, negative = generate_points_random(100)
-#positive, negative = generate_points_fx(100)
-positive, negative = generate_points_radius(100)
 
+#positive, negative = points.generate_points_random(100)
+positive, negative = points.generate_points_fx(10)
+#positive, negative = points.generate_points_radius(100)
+init(10, 5, positive, negative, 100)
 
-init(3, 3, positive, negative)
+#print(f.calculate_fitness_dist(gen0(3,3,positive,negative), positive, negative))

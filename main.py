@@ -24,6 +24,7 @@ while gen <= genmax
     gen++
 end
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -181,47 +182,49 @@ def init(amount, degree, positive, negative):
         plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
                  np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
         plt.show()
-
+    best_genotype = [population[0][0], population[0][1], 0]
     pop_fit = []
+    for generation in range(1, 5):
+        print(generation)
+        count = amount
+        new_population = []
+        pop_fit.append(avg_pop_fitness(population, amount))
+        #print(population)
+        while count > 0:
+            g1, g2 = selection(population)
 
-    count = amount
-    new_population = []
-    pop_fit.append(avg_pop_fitness(population, amount))
-    print(population)
-    while count > 0:
-        g1, g2 = selection(population)
+            rand = np.random.randint(3)
+            #print(rand)
+            if rand == 1:
+                new_genotype = crossover(degree, g1, g2)
+                new_population.append(new_genotype)
+                count = count - 1
 
-        rand = np.random.randint(3)
-        print(rand)
-        if rand == 1:
-            new_genotype = crossover(degree, g1, g2)
-            new_population.append(new_genotype)
+            if rand == 2:
+                new_genotype = mutation(degree, g1)
+                new_population.append(new_genotype)
             count = count - 1
 
-        if rand == 2:
-            new_genotype = mutation(degree, g1)
-            new_population.append(new_genotype)
-            count = count - 1
+        if 0:
+            plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
+                     np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
+            plt.show()
 
-    if 0:
+        #print(population)
+        #print(new_population)
+        pop_fit.append(avg_pop_fitness(new_population, amount))
+        population = copy.deepcopy(new_population)
+        population = sorted(population, key=lambda x: x[1], reverse=True)
+
+        #print(population)
+        if best_genotype[1] < population[0][1]:
+            best_genotype = [population[0][0], population[0][1], generation]
+    if 1:
         plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-                 np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
+                 np.arange(-1, 1, 0.01), np.polyval(best_genotype[0], np.arange(-1, 1, 0.01)))
         plt.show()
 
-    print(population)
-    print(new_population)
-    pop_fit.append(avg_pop_fitness(new_population, amount))
-    population = copy.deepcopy(new_population)
-    population = sorted(population, key=lambda x: x[1], reverse=True)
-
-    print(population)
-
-
-
-    if 0:
-        plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-                 np.arange(-1, 1, 0.01), np.polyval(population[0][0], np.arange(-1, 1, 0.01)))
-        plt.show()
+    print(best_genotype)
 
 
 
@@ -233,4 +236,4 @@ def init(amount, degree, positive, negative):
 positive, negative = generate_points_radius(100)
 
 
-init(10, 2, positive, negative)
+init(3, 3, positive, negative)

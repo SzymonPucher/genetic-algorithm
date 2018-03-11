@@ -26,7 +26,6 @@ end
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 import copy
 
 import config
@@ -36,31 +35,7 @@ import crossover as c
 import mutation as m
 import fitness as f
 import genotype as g
-
-
-def results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope):
-    scope = scope/2 * 1.2
-    plt.title(f"Best genotype -> fitness = {best_genotype[1]}")
-    axes = plt.gca()
-    axes.set_xlim([-scope, scope])
-    axes.set_ylim([-scope, scope])
-    plt.plot(positive[0], positive[1], 'g+', negative[0], negative[1], 'r_',
-             np.arange(-scope, scope, 0.01), np.polyval(best_genotype[0], np.arange(-scope, scope, 0.01)))
-    plt.show()
-
-    plt.title("Average fitness by generation")
-    plt.xlabel("Generations")
-    plt.ylabel("Fitness")
-    plt.plot(avg_pop_fit)
-    plt.show()
-
-    plt.title("Max fitness by generation")
-    plt.xlabel("Generations")
-    plt.ylabel("Fitness")
-    plt.plot(best_genotype_in_pop_fit)
-    plt.show()
-
-    print(best_genotype)
+import results
 
 
 def start():
@@ -101,7 +76,7 @@ def start():
             best_genotype = [population[0][0], population[0][1], generation]
 
     """ Showing results """
-    results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope)
+    results.show_results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope)
 
 
 start()

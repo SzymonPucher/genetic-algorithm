@@ -22,9 +22,9 @@ def get_config():
     p_type, f_type, s_type, c_type, m_type = 3, 1, 3, 1, 2
     no_of_points = 100
     scope = 2
-    no_of_genotypes_in_population = 10
+    no_of_genotypes_in_population = 20
     degree_of_genotype = 5
-    coeff_range_of_genotype = 10
+    coeff_range_of_genotype = 4
     no_of_generations = 100
     return p_type, f_type, s_type, c_type, m_type,\
            no_of_points, scope, no_of_genotypes_in_population, degree_of_genotype, coeff_range_of_genotype, no_of_generations

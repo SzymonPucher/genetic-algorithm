@@ -19,9 +19,8 @@ def mutation_rand_coeff(degree, genotype, positive, negative, coeff_range):
     g1 = copy.deepcopy(genotype)
 
     rand = np.random.randint(degree+1)
-    coefficient = g.generate_genotype(coeff_range, degree)
 
-    g1[0][rand] = coefficient
+    g1[0][rand] = np.random.rand(1) * coeff_range - coeff_range/2
     g1[1] = f.calculate_fitness(g1[0], positive, negative)
     return g1
 

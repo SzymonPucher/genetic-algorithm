@@ -29,21 +29,21 @@ import numpy as np
 import copy
 
 import config
-import points
+import points as p
 import selection as s
 import crossover as c
 import mutation as m
 import fitness as f
 import genotype as g
-import results
+import results as r
 
 
-def start():
+def test_standard():
     """ Configuration """
     p_type, f_type, s_type, c_type, m_type, \
     no_of_points, scope, no_of_gt_in_pop, degree, coeff_range, no_of_generations = config.get_config()
     """ Generate dataset"""
-    positive, negative = points.generate_points(no_of_points, scope, p_type)
+    positive, negative = p.generate_points(no_of_points, scope, p_type)
     """ Generating population 0 """
     population = g.gen0(no_of_gt_in_pop, degree, positive, negative, coeff_range)
     """ Best genotype, average fitness of whole population and best genotype in population initialized """
@@ -76,9 +76,65 @@ def start():
             best_genotype = [population[0][0], population[0][1], generation]
 
     """ Showing results """
-    results.show_results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope)
+    r.show_results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope)
 
 
-start()
+def test_all_cases():
+    """ Configuration """
+    p_type, f_type, s_type, c_type, m_type, \
+    no_of_points, scope, no_of_gt_in_pop, degree, coeff_range, no_of_generations = config.get_config_all_cases()
+
+    for p_type in range(1,4):
+        best_genotypes = []
+        avg_fit_test = []
+        best_fit_test = []
+        """ Generate dataset"""
+        positive, negative = p.generate_points(no_of_points, scope, p_type)
+        """ Generating population 0 """
+        pop0 = g.gen0(no_of_gt_in_pop, degree, positive, negative, coeff_range)
+        for s_type in range(1,4):
+            for c_type in range(1, 3):
+                for m_type in range(1, 3):
+                    population = copy.deepcopy(pop0)
+                    """ Best genotype, average fitness of whole population and best genotype in population initialized """
+                    best_genotype = [population[0][0], population[0][1], 0]
+                    avg_pop_fit = [f.avg_pop_fitness(population, no_of_gt_in_pop)]
+                    best_genotype_in_pop_fit = [population[0][1]]
+                    """ Generations """
+                    for generation in range(1, no_of_generations+1):
+                        """ Initialize new population """
+                        new_population = []
+                        """ Creating new population """
+                        while len(new_population) < no_of_gt_in_pop:
+                            """ SELECTION """
+                            g1, g2 = s.selection(population, s_type)
+                            """ Randomly done crossover and mutation """
+                            rand = np.random.randint(3)
+                            if rand == 1:
+                                """ CROSSOVER """
+                                new_population.append(c.crossover(degree, g1, g2, positive, negative, c_type))
+                            if rand == 2:
+                                """ MUTATION """
+                                new_population.append(m.mutation(coeff_range, degree, g1, positive, negative, m_type))
+                        """ Preparing for next generation, saving avg fitness and best genotype in generation """
+                        population = copy.deepcopy(new_population)
+                        population = sorted(population, key=lambda x: x[1], reverse=True)
+                        avg_pop_fit.append(f.avg_pop_fitness(population, no_of_gt_in_pop))
+                        best_genotype_in_pop_fit.append(population[0][1])
+                        """ Checking if current generation has better genotype """
+                        if best_genotype[1] < population[0][1]:
+                            best_genotype = [population[0][0], population[0][1], generation]
+                    best_genotype.append(s_type)
+                    best_genotype.append(c_type)
+                    best_genotype.append(m_type)
+                    best_genotypes.append(best_genotype)
+                    avg_fit_test.append(avg_pop_fit)
+                    best_fit_test.append(best_genotype_in_pop_fit)
+
+        """ Showing results """
+        r.show_results_allcases(best_genotypes, avg_fit_test, best_fit_test, positive, negative, scope)
+
+#test_standard()
+test_all_cases()
 
 

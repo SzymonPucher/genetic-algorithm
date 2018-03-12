@@ -76,22 +76,28 @@ def test_standard():
             best_genotype = [population[0][0], population[0][1], generation]
 
     """ Showing results """
-    r.show_results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope)
+    r.show_results(best_genotype, avg_pop_fit, best_genotype_in_pop_fit, positive, negative, scope, p_type)
 
 
 def test_all_cases():
     """ Configuration """
-    p_type, f_type, s_type, c_type, m_type, \
+    p_type, f_type, s_type, c_type, m_type, show_type, \
     no_of_points, scope, no_of_gt_in_pop, degree, coeff_range, no_of_generations = config.get_config_all_cases()
-
     for p_type in range(1,4):
         best_genotypes = []
         avg_fit_test = []
         best_fit_test = []
-        """ Generate dataset"""
-        positive, negative = p.generate_points(no_of_points, scope, p_type)
-        """ Generating population 0 """
-        pop0 = g.gen0(no_of_gt_in_pop, degree, positive, negative, coeff_range)
+        current_type = []
+        while True:
+            """ Generate dataset"""
+            positive, negative = p.generate_points(no_of_points, scope, p_type)
+            """ Generating population 0 """
+            pop0 = g.gen0(no_of_gt_in_pop, degree, positive, negative, coeff_range)
+            r.plot_points(positive, negative)
+            inp = input("Yo, wanna this? (y/n): ")
+            if inp == "y":
+                break
+
         for s_type in range(1,4):
             for c_type in range(1, 3):
                 for m_type in range(1, 3):
@@ -127,12 +133,13 @@ def test_all_cases():
                     best_genotype.append(s_type)
                     best_genotype.append(c_type)
                     best_genotype.append(m_type)
+                    current_type.append([s_type, c_type, m_type])
                     best_genotypes.append(best_genotype)
                     avg_fit_test.append(avg_pop_fit)
                     best_fit_test.append(best_genotype_in_pop_fit)
 
         """ Showing results """
-        r.show_results_allcases(best_genotypes, avg_fit_test, best_fit_test, positive, negative, scope)
+        r.show_results_allcases(best_genotypes, avg_fit_test, best_fit_test, positive, negative, scope, p_type, current_type, show_type)
 
 #test_standard()
 test_all_cases()

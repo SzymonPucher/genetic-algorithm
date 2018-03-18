@@ -17,15 +17,15 @@ def get_config():
     m_type:
         1 = random coefficient replaced by random number
         2 = binary mutation
-    :return: run configuration
+    :return: run configuration`
     """
-    p_type, f_type, s_type, c_type, m_type = 3, 1, 2, 1, 2
+    p_type, f_type, s_type, c_type, m_type = 3, 1, 3, 1, 2
     no_of_points = 100
-    scope = 3
+    scope = 2
     no_of_genotypes_in_population = 20
     degree_of_genotype = 5
-    coeff_range_of_genotype = 20
-    no_of_generations = 150
+    coeff_range_of_genotype = 4
+    no_of_generations = 100
     return p_type, f_type, s_type, c_type, m_type,\
            no_of_points, scope, no_of_genotypes_in_population, degree_of_genotype, coeff_range_of_genotype, no_of_generations
 
@@ -38,7 +38,7 @@ def get_config_all_cases():
     no_of_genotypes_in_population = 50
     degree_of_genotype = 5
     coeff_range_of_genotype = 10
-    no_of_generations = 150
+    no_of_generations = 100
 
     return p_type, f_type, s_type, c_type, m_type, show_only_best_genotype_for_given_p_type,\
            no_of_points, scope, no_of_genotypes_in_population, degree_of_genotype, coeff_range_of_genotype, no_of_generations
